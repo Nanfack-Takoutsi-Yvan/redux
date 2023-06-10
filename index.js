@@ -3,6 +3,10 @@ const redux = require('redux');
 const bindActionCreators = redux.bindActionCreators
 const combineReducers = redux.combineReducers
 
+const reduxLogger = require("redux-logger")
+const logger = reduxLogger.createLogger()
+const applyMiddleware = redux.applyMiddleware
+
 const ODER_CAKE = "ODER_CAKE"
 const RESTOCK_CAKE = "RESTOCK_CAKE"
 const ORDER_ICE_CREAM = "ORDER_ICE_CREAM"
@@ -66,12 +70,12 @@ function iceCreamReducer(state = initialIceCreamState, action ) {
     case ORDER_ICE_CREAM: 
       return {
         ...state, 
-        numberOfCakes: state.numberOfCakes - action.payload
+        numberOfIceCreams: state.numberOfIceCreams - action.payload
       }
     case RESTOCK_ICE_CREAM: 
       return {
         ...state,
-        numberOfCakes: state.numberOfCakes + action.payload
+        numberOfIceCreams: state.numberOfIceCreams + action.payload
       }
     default: 
       return state
@@ -83,20 +87,14 @@ const rootReducer = combineReducers({
   iceCream: iceCreamReducer
 })
 
-const store = redux.createStore(rootReducer)
+const store = redux.createStore(rootReducer, applyMiddleware(logger))
 
-console.group("View changes in the state")
-console.log("initial state", store.getState())
-
-const actions = bindActionCreators({ orderCake, restockCakes }, store.dispatch)
-
-const unsubscribe = store.subscribe(() => console.log("The state changed to", store.getState()))
+const actions = bindActionCreators({ orderCake, restockCakes, orderIceCream, restockIceCream }, store.dispatch)
 
 actions.orderCake()
 actions.orderCake()
 actions.orderCake()
 actions.restockCakes(4)
 
-console.groupEnd()
-
-unsubscribe()
+actions.orderIceCream()
+actions.restockIceCream(3)
